@@ -1,6 +1,6 @@
 # 🔬 Autopsy Lab
 
-> **System Failure Reconstruction Engine** — Upload a log file, get a full AI-powered post-mortem in seconds.
+> **System Failure Reconstruction Engine** - Upload a log file, get a full AI-powered post-mortem in seconds.
 
 ![Status](https://img.shields.io/badge/status-active-22c55e?style=flat-square) ![Stack](https://img.shields.io/badge/stack-Next.js%20%2B%20FastAPI-3b82f6?style=flat-square) ![AI](https://img.shields.io/badge/AI-Groq%20%2F%20LLaMA%203.3-a855f7?style=flat-square)
 
@@ -8,12 +8,12 @@
 
 ## What it does
 
-Autopsy Lab takes raw system logs — messy, verbose, hard to read — and turns them into a structured incident report using a large language model. You upload a log file, click a button, and get back:
+Autopsy Lab takes raw system logs - messy, verbose, hard to read — and turns them into a structured incident report using a large language model. You upload a log file, click a button, and get back:
 
-- **Root cause** — the actual reason things broke, not just symptoms
-- **Event timeline** — a clean ordered sequence of what happened and when
-- **Remediation steps** — concrete actions to fix and prevent the issue
-- **Confidence score** — how certain the AI is about its analysis
+- **Root cause** - the actual reason things broke, not just symptoms
+- **Event timeline** - a clean ordered sequence of what happened and when
+- **Remediation steps** - concrete actions to fix and prevent the issue
+- **Confidence score** - how certain the AI is about its analysis
 
 Built for hackathons, on-call engineers, and anyone who has stared at a wall of stack traces at 2am.
 
