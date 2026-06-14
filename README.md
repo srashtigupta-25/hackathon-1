@@ -173,4 +173,4 @@ A few things to sort before deploying:
 
 ## Built at
 
-This project was built during a hackathon. Fast, scrappy, and functional.
+This project was built during a hackathon in 4 hours. Fast, scrappy, and functional.
