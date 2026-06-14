@@ -122,6 +122,8 @@ Next.js renders the structured report
 ```
 
 The backend enforces JSON-only output via a system prompt and strips any markdown fences the model accidentally adds before parsing.
+<img width="1422" height="750" alt="Screenshot 2026-06-13 at 8 24 46 PM" src="https://github.com/user-attachments/assets/2a82200a-e970-43dd-84fd-a91679513d49" />
+
 
 ---
 
