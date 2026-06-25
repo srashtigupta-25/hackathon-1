@@ -1,74 +1,138 @@
-# 🔬 Autopsy Lab
+# Autopsy Lab
 
-> **System Failure Reconstruction Engine** - Upload a log file, get a full AI-powered post-mortem in seconds.
+**AI-assisted incident reconstruction for raw system logs.**
 
-![Status](https://img.shields.io/badge/status-active-22c55e?style=flat-square) ![Stack](https://img.shields.io/badge/stack-Next.js%20%2B%20FastAPI-3b82f6?style=flat-square) ![AI](https://img.shields.io/badge/AI-Groq%20%2F%20LLaMA%203.3-a855f7?style=flat-square)
+Autopsy Lab turns an uploaded log file into a structured incident report: severity, affected component, event timeline, likely root cause, supporting evidence, immediate mitigation, and preventive actions.
 
----
+> Built as a working prototype in **four hours** at the Madison AI Hackathon, then hardened for public review with safer file handling, structured validation, tests, CI, Docker support, and a responsive product interface.
 
-## What it does
+[![Next.js](https://img.shields.io/badge/Next.js-16-111827?logo=next.js)](https://nextjs.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-Python-009688?logo=fastapi)](https://fastapi.tiangolo.com/)
+[![Groq](https://img.shields.io/badge/Groq-Llama_3.3-f55036)](https://groq.com/)
+[![CI](https://github.com/srashtigupta-25/hackathon-1/actions/workflows/ci.yml/badge.svg)](https://github.com/srashtigupta-25/hackathon-1/actions)
 
-Autopsy Lab takes raw system logs - messy, verbose, hard to read — and turns them into a structured incident report using a large language model. You upload a log file, click a button, and get back:
+![Autopsy Lab incident report](docs/autopsy-lab-report.png)
 
-- **Root cause** - the actual reason things broke, not just symptoms
-- **Event timeline** - a clean ordered sequence of what happened and when
-- **Remediation steps** - concrete actions to fix and prevent the issue
-- **Confidence score** - how certain the AI is about its analysis
+## Why this project matters
 
-Built for hackathons, on-call engineers, and anyone who has stared at a wall of stack traces at 2am.
+Production incidents rarely arrive as clean narratives. Engineers receive fragmented timestamps, stack traces, retries, timeouts, and downstream failures. Autopsy Lab helps organize that evidence without pretending the model is an authority:
 
----
+- separates likely root cause from symptoms;
+- grounds conclusions in extracted log evidence;
+- assigns confidence based on ambiguity;
+- produces immediate and long-term remediation paths;
+- preserves a structured JSON report for sharing or downstream automation.
 
-## Stack
+## Product walkthrough
+
+1. Upload a `.txt`, `.log`, `.pdf`, or `.docx` file.
+2. FastAPI validates the extension and size, then extracts text in memory.
+3. The input is bounded before being sent to Groq.
+4. Llama 3.3 produces a strict JSON incident model.
+5. Pydantic validates every field before the response reaches the UI.
+6. Next.js renders an accessible, responsive report that can be downloaded as JSON.
+
+```text
+Log file
+   |
+   v
+FastAPI validation and extraction
+   |
+   v
+Bounded prompt + Groq / Llama 3.3
+   |
+   v
+Pydantic schema validation
+   |
+   v
+Next.js incident report
+```
+
+## What the report contains
+
+| Section | Purpose |
+|---|---|
+| Incident summary | One-sentence description of customer or system impact |
+| Severity | Critical, high, medium, or low |
+| Affected component | Most likely service or subsystem |
+| Timeline | Ordered events with supplied timestamps where available |
+| Root cause | Underlying failure separated from visible symptoms |
+| Evidence | Concise signals taken from the uploaded logs |
+| Contributing factors | Conditions that amplified the incident |
+| Immediate actions | Ordered mitigation steps |
+| Preventive actions | Reliability improvements to prevent recurrence |
+| Confidence | A bounded score reflecting evidence quality |
+
+## Engineering decisions
+
+### Evidence before certainty
+
+The prompt instructs the model not to invent infrastructure or timestamps. The response separates evidence, contributing factors, and inferred root cause so uncertainty stays visible.
+
+### Structured output
+
+The backend requests JSON output and validates it against typed Pydantic models. Invalid model responses fail closed with a clear API error instead of leaking malformed data into the frontend.
+
+### Safer uploads
+
+- 5 MB default upload limit
+- allowlisted file extensions
+- filename sanitization
+- in-memory PDF and DOCX parsing
+- bounded log context
+- no uploaded files persisted to disk
+
+### Usable without an API key
+
+The frontend includes a sample incident report so reviewers can inspect the complete experience without configuring Groq.
+
+## Technology
 
 | Layer | Technology |
 |---|---|
-| Frontend | Next.js 16 (App Router, Turbopack) |
-| Styling | Inline CSS, no Tailwind dependency |
-| Backend | FastAPI (Python) |
-| AI | Groq API — LLaMA 3.3 70B Versatile |
-| File parsing | `chardet`, `PyPDF2`, `python-docx` |
-| HTTP | Axios (frontend → backend) |
+| Frontend | Next.js 16, React 19, TypeScript, responsive CSS |
+| Backend | FastAPI, Python 3.12, Pydantic |
+| AI | Groq API, Llama 3.3 70B |
+| Parsing | chardet, pypdf, python-docx |
+| Quality | pytest, Playwright, ESLint, GitHub Actions |
+| Packaging | Docker, Docker Compose |
 
----
-
-## Project structure
-
-```
-Hackathon-1/
-├── frontend/               # Next.js app
-│   └── src/
-│       └── app/
-│           └── page.js     # Main UI component
-└── backend/
-    ├── main.py             # FastAPI app + Groq integration
-    ├── requirements.txt
-    └── venv/
-```
-
----
-
-## Getting started
+## Run locally
 
 ### Prerequisites
 
-- Node.js 18+
-- Python 3.10+
-- A [Groq API key](https://console.groq.com) (free tier works)
+- Node.js 22+
+- Python 3.12+
+- Groq API key for live analysis
 
-### 1. Backend
+### 1. Configure the environment
+
+```bash
+cp .env.example .env
+```
+
+Set `GROQ_API_KEY` in `.env`. Never commit the file.
+
+Create `frontend/.env.local`:
+
+```bash
+NEXT_PUBLIC_API_URL=http://localhost:8000
+```
+
+### 2. Start the backend
 
 ```bash
 cd backend
-python -m venv venv
-source venv/bin/activate        # Windows: venv\Scripts\activate
-pip install fastapi uvicorn groq chardet python-docx PyPDF2 python-multipart
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+export GROQ_API_KEY="your_key"
 uvicorn main:app --reload
 ```
 
-Backend runs at `http://127.0.0.1:8000`
+API documentation is available at [http://localhost:8000/docs](http://localhost:8000/docs).
 
-### 2. Frontend
+### 3. Start the frontend
 
 ```bash
 cd frontend
@@ -76,101 +140,104 @@ npm install
 npm run dev
 ```
 
-Frontend runs at `http://localhost:3000`
+Open [http://localhost:3000](http://localhost:3000).
 
-### 3. Add your API key
+### Docker Compose
 
-In `backend/main.py`, replace the placeholder:
-
-```python
-GROQ_API_KEY = "your_groq_api_key_here"
+```bash
+GROQ_API_KEY="your_key" docker compose up --build
 ```
 
-Or better, use an environment variable:
+## API
 
-```python
-import os
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-```
+### `POST /analyze`
 
----
+Multipart form field: `log_file`
 
-## Supported log formats
+Success response:
 
-| Format | Extension |
-|---|---|
-| Plain text | `.txt` |
-| PDF | `.pdf` |
-| Word document | `.docx` |
-
----
-
-## How it works
-
-```
-User uploads log file
-        ↓
-FastAPI reads and decodes the file
-        ↓
-Log content sent to Groq (LLaMA 3.3 70B)
-with a strict JSON-output prompt
-        ↓
-AI returns { timeline, root_cause,
-             suggested_fix, confidence_score }
-        ↓
-Next.js renders the structured report
-```
-
-The backend enforces JSON-only output via a system prompt and strips any markdown fences the model accidentally adds before parsing.
-<img width="1422" height="750" alt="Screenshot 2026-06-13 at 8 24 46 PM" src="https://github.com/user-attachments/assets/2a82200a-e970-43dd-84fd-a91679513d49" />
-
-
----
-
-## API reference
-
-### `POST /analyze_logs`
-
-Accepts a multipart form upload.
-
-**Request**
-```
-Content-Type: multipart/form-data
-Body: log_file=<file>
-```
-
-**Response (success)**
 ```json
 {
-  "analysis_results": {
-    "timeline": ["Application startup", "Payment service unreachable", "..."],
-    "root_cause": "The payment service at payments.internal:3000 became unreachable...",
-    "suggested_fix": ["Verify payment service health", "Implement circuit breaker", "..."],
-    "confidence_score": 92
+  "analysis": {
+    "incident_summary": "Checkout requests failed after connection exhaustion.",
+    "severity": "high",
+    "affected_component": "checkout-api / payment-client",
+    "timeline": [
+      {
+        "timestamp": "14:03:12",
+        "event": "Checkout requests begin returning HTTP 503."
+      }
+    ],
+    "root_cause": "A degraded dependency exhausted the shared connection pool.",
+    "contributing_factors": ["Timeout exceeded the request budget."],
+    "evidence": ["pool.active=50 pool.max=50"],
+    "immediate_actions": ["Open the circuit breaker."],
+    "preventive_actions": ["Isolate dependency connection pools."],
+    "confidence_score": 91
+  },
+  "metadata": {
+    "filename": "checkout.log",
+    "characters_analyzed": 4872,
+    "truncated": false,
+    "model": "llama-3.3-70b-versatile"
   }
 }
 ```
 
-**Response (error)**
-```json
-{
-  "error": "Unsupported file type: csv. Please use .txt, .docx, or .pdf"
-}
+Other endpoints:
+
+- `GET /health` - service and AI configuration status
+- `GET /docs` - interactive OpenAPI documentation
+
+## Tests
+
+```bash
+cd backend
+pip install -r requirements-dev.txt
+pytest -q
+
+cd ../frontend
+npm run lint
+npm run build
+npm run test:e2e
 ```
 
----
+GitHub Actions runs both suites on every push and pull request.
 
-## Running in production
+## Repository structure
 
-A few things to sort before deploying:
+```text
+.
+├── .github/workflows/ci.yml
+├── backend/
+│   ├── main.py
+│   ├── test_main.py
+│   ├── requirements.txt
+│   └── Dockerfile
+├── frontend/
+│   ├── src/app/
+│   │   ├── layout.tsx
+│   │   ├── page.tsx
+│   │   └── globals.css
+│   ├── package.json
+│   └── Dockerfile
+├── .env.example
+└── docker-compose.yml
+```
 
-- Move the API key to an environment variable and never commit it
-- Set `allow_origins` in the CORS middleware to your actual frontend domain instead of `"*"`
-- Add rate limiting to the `/analyze_logs` endpoint — Groq free tier has limits
-- Consider streaming the AI response for faster perceived load time on large log files
+## Limitations and next steps
 
----
+This remains a hackathon prototype, not an autonomous incident-management system.
 
-## Built at
+- LLM output should be reviewed by an engineer before acting.
+- Large or multi-service incidents need chunking and cross-file correlation.
+- Production deployment should add authentication, rate limiting, request tracing, encrypted storage policies, and provider-level observability.
+- A next iteration could integrate OpenTelemetry traces, log-platform connectors, incident history, and evaluation datasets.
 
-This project was built during a hackathon in 4 hours. Fast, scrappy, and functional.
+## Security note
+
+If an API credential has ever been committed, removing it from the latest source is not enough. Revoke it at the provider and issue a new key. Keep all local credentials in ignored environment files.
+
+## Author
+
+Built by [Srashti Gupta](https://github.com/srashtigupta-25) at the Madison AI Hackathon.
