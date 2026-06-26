@@ -6,6 +6,8 @@ Autopsy Lab turns an uploaded log file into a structured incident report: severi
 
 > Built as a working prototype in **four hours** at the Madison AI Hackathon, then hardened for public review with safer file handling, structured validation, tests, CI, Docker support, and a responsive product interface.
 
+[![Live Demo](https://img.shields.io/badge/Live_Demo-autopsy--lab.vercel.app-2459D3?style=for-the-badge&logo=vercel&logoColor=white)](https://autopsy-lab.vercel.app)
+
 [![Next.js](https://img.shields.io/badge/Next.js-16-111827?logo=next.js)](https://nextjs.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-Python-009688?logo=fastapi)](https://fastapi.tiangolo.com/)
 [![Groq](https://img.shields.io/badge/Groq-Llama_3.3-f55036)](https://groq.com/)
@@ -155,6 +157,8 @@ The repository is configured as one Vercel Services project:
 - Next.js frontend at `/`
 - FastAPI backend at `/api`
 - automatically generated `NEXT_PUBLIC_BACKEND_URL=/api`
+
+**Production:** [autopsy-lab.vercel.app](https://autopsy-lab.vercel.app)
 
 After importing the repository, select the **Services** framework preset and add
 `GROQ_API_KEY` as a production environment variable. Vercel builds both services
