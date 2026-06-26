@@ -148,6 +148,18 @@ Open [http://localhost:3000](http://localhost:3000).
 GROQ_API_KEY="your_key" docker compose up --build
 ```
 
+### Vercel
+
+The repository is configured as one Vercel Services project:
+
+- Next.js frontend at `/`
+- FastAPI backend at `/api`
+- automatically generated `NEXT_PUBLIC_BACKEND_URL=/api`
+
+After importing the repository, select the **Services** framework preset and add
+`GROQ_API_KEY` as a production environment variable. Vercel builds both services
+and serves them from the same deployment domain.
+
 ## API
 
 ### `POST /analyze`
